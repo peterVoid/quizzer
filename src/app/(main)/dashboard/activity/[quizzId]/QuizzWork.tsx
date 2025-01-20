@@ -20,6 +20,16 @@ import { useRouter } from "next/navigation";
 import { Medal, Timer, Trophy } from "lucide-react";
 import Link from "next/link";
 import { MdScoreboard } from "react-icons/md";
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableFooter,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 interface QuizzWorkProps {
   quizzId: string;
@@ -82,9 +92,9 @@ export function QuizzWork({ quizzId }: QuizzWorkProps) {
     const isCorrect = selectCurrentMainQuizz.correctAnswer === userAnswer;
 
     if (isCorrect) {
-      setTotalWrongAnswer((prev) => prev + 1);
-    } else {
       setTotalCorrectAnswer((prev) => prev + 1);
+    } else {
+      setTotalWrongAnswer((prev) => prev + 1);
     }
 
     setShowAlert(isCorrect ? "correct" : "wrong");
@@ -159,7 +169,7 @@ export function QuizzWork({ quizzId }: QuizzWorkProps) {
       <div className="flex w-full items-center justify-between">
         <h1 className="text-4xl font-bold">Summary</h1>
         <Button asChild>
-          <Link href={`${process.env.NEXT_PUBLIC_APP_BASE_URL}dashboard`}>
+          <Link href={`${process.env.NEXT_PUBLIC_APP_BASE_URL}/dashboard`}>
             Back to Dashboard
           </Link>
         </Button>
@@ -199,7 +209,32 @@ export function QuizzWork({ quizzId }: QuizzWorkProps) {
             <h5>{formatTime(timeElapsed)}</h5>
           </CardContent>
         </Card>
-        <div>wk</div>
+        <div className="">
+          <h1>Question and Answer</h1>
+          <Table className="w-full">
+            <TableCaption>A list of your recent invoices.</TableCaption>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-[100px]">No</TableHead>
+                <TableHead>Question</TableHead>
+                <TableHead>Correct Answer</TableHead>
+                <TableHead className="text-right">Your Answer</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {questions.map((question, questionIndex) => (
+                <TableRow key={questionIndex}>
+                  <TableCell className="font-medium">
+                    {questionIndex + 1}
+                  </TableCell>
+                  <TableCell>{question.questionTitle.slice(0, 50)}</TableCell>
+                  <TableCell>{question.correctAnswer}</TableCell>
+                  <TableCell>{trackUserAnswer[questionIndex]}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
       </div>
     </div>
   );
