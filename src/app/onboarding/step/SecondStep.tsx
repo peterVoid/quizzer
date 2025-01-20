@@ -12,28 +12,12 @@ import {
 import { ActionType } from "@/lib/types";
 import { onboardingFormSecondStepSchema } from "@/lib/zod-schemas/onboardingFormSecondStepSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { UserInteresting } from "@prisma/client";
+import { Category } from "@prisma/client";
+import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
 import { ChevronLeft, ChevronRight, CodeXml, History } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { MdOutlineScience } from "react-icons/md";
-
-const interestOptions = [
-  {
-    label: "Science",
-    value: UserInteresting.SCIENCE,
-    icon: <MdOutlineScience size={20} />,
-  },
-  {
-    label: "Programming",
-    value: UserInteresting.PROGRAMMING,
-    icon: <CodeXml size={20} />,
-  },
-  {
-    label: "History",
-    value: UserInteresting.HISTORY,
-    icon: <History size={20} />,
-  },
-] as const;
 
 export function SecondStep() {
   const { dispatch, step, interest } = useOnboardingContext();
@@ -55,6 +39,19 @@ export function SecondStep() {
     dispatch({ type: ActionType.MOVE_PAGE, payload: step + 1 });
   };
 
+
+
+  const { data: categoryData, isLoading } = useQuery({
+    queryKey: ['f_onboarding_category'],
+    queryFn: async () => {
+      const response = await axios.get("/api/quizz/category");
+
+      return response.data as Category[]
+    }
+  })
+
+  if (!categoryData) return;
+
   return (
     <div className="space-y-4">
       <h1 className="text-2xl font-bold underline">Second Step 2️⃣</h1>
@@ -73,40 +70,34 @@ export function SecondStep() {
                     Choose a topic of your interest
                   </FormLabel>
                 </div>
-                {interestOptions.map((interestOption) => (
-                  <FormField
-                    key={interestOption.value}
-                    control={form.control}
-                    name="interest"
-                    render={({ field }) => (
-                      <FormItem className="flex w-fit flex-row items-start space-x-3 space-y-0 rounded-md bg-muted px-3 py-2">
-                        <FormControl>
-                          <Checkbox
-                            checked={field.value?.includes(
-                              interestOption.value,
-                            )}
-                            onCheckedChange={(checked) => {
-                              return checked
-                                ? field.onChange([
-                                    ...field.value,
-                                    interestOption.value,
-                                  ])
-                                : field.onChange(
+                <div className="grid grid-cols-2">
+                  {categoryData.map(category => (
+                    <FormField
+                      key={category.id}
+                      control={form.control}
+                      name="interest"
+                      render={({ field }) => (
+                        <FormItem key={category.id} className="flex flex-row items-center gap-3 space-y-3 space-y-0">
+                          <FormControl>
+                            <Checkbox
+                              checked={field.value?.includes(category.name)}
+                              onCheckedChange={(checked) => {
+                                return checked
+                                  ? field.onChange([...field.value, category.name])
+                                  : field.onChange(
                                     field.value?.filter(
-                                      (value) => value !== interestOption.value,
-                                    ),
-                                  );
-                            }}
-                          />
-                        </FormControl>
-                        <FormLabel className="flex items-center gap-2 font-normal">
-                          {interestOption.icon}
-                          {interestOption.label}
-                        </FormLabel>
-                      </FormItem>
-                    )}
-                  />
-                ))}
+                                      (value) => value !== category.name
+                                    )
+                                  )
+                              }}
+                            />
+                          </FormControl>
+                          {category.name}
+                        </FormItem>
+                      )}
+                    />
+                  ))}
+                </div>
                 <FormMessage />
               </FormItem>
             )}

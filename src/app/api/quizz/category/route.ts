@@ -3,13 +3,13 @@ import { NextRequest } from "next/server";
 
 export async function GET(req: NextRequest) {
   try {
-   const categories = await prisma.category.findMany({
-      orderBy: {createdAt: 'desc'}
-    })
+    const categories = await prisma.category.findMany({
+      orderBy: { createdAt: "desc" },
+    });
 
-    return Response.json(categories)
+    return Response.json(categories);
   } catch (error) {
-    console.error(error)
-    return Response.json({ message: "Internal server error" }, { status: 500 })
+    console.error(error);
+    return Response.json({ message: "Internal server error" }, { status: 500 });
   }
 }

@@ -69,8 +69,25 @@ export const QuizzDataInclude = {
       questionTitle: true,
     },
   },
+  user: {
+    select: {
+      name: true,
+      username: true,
+      image: true,
+    },
+  },
 } satisfies Prisma.QuizzInclude;
 
 export type QuizzDataIncludeType = Prisma.QuizzGetPayload<{
   include: typeof QuizzDataInclude;
+}>;
+
+export const RecentlyQuizzInclude = {
+  quizz: {
+    include: QuizzDataInclude,
+  },
+} satisfies Prisma.RecentlyStartedQuizzInclude;
+
+export type RecentlyQuizzIncludeType = Prisma.RecentlyStartedQuizzGetPayload<{
+  include: typeof RecentlyQuizzInclude;
 }>;

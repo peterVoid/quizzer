@@ -38,30 +38,31 @@ model Session {
 }
 
 model User {
-  id             String         @id @default(cuid())
-  name           String
-  username       String         @unique
-  email          String?        @unique
-  hashedPassword String?
-  emailVerified  DateTime?      @map("email_verified")
-  image          String?
-  isAdmin        Boolean        @default(false)
-  onboarded      Boolean        @default(false)
-  accounts       Account[]
-  sessions       Session[]
-  interests      UserInterest[]
-  Quizz          Quizz[]
+  id                   String                 @id @default(cuid())
+  name                 String
+  username             String                 @unique
+  email                String?                @unique
+  hashedPassword       String?
+  emailVerified        DateTime?              @map("email_verified")
+  image                String?
+  isAdmin              Boolean                @default(false)
+  onboarded            Boolean                @default(false)
+  accounts             Account[]
+  sessions             Session[]
+  interests            UserInterest[]
+  Quizz                Quizz[]
+  recentlyStartedQuizz RecentlyStartedQuizz[]
 
   @@map("users")
 }
 
 model UserInterest {
-  id       String          @id @default(cuid())
-  interest UserInteresting
+  id       String   @id @default(cuid())
+  interest String[]
   userId   String
-  user     User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, interest]) //Ensure a user can't have duplicate interests
+  @@unique([userId, interest])
   @@map("user_interests")
 }
 
@@ -72,12 +73,6 @@ model VerificationToken {
 
   @@unique([identifier, token])
   @@map("verification_tokens")
-}
-
-enum UserInteresting {
-  SCIENCE
-  HISTORY
-  PROGRAMMING
 }
 
 model Category {
@@ -93,15 +88,16 @@ model Category {
 }
 
 model Quizz {
-  id          String                   @id @default(cuid())
-  title       String
-  description String
-  thumbnail   String?
-  userId      String?
-  user        User?                    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  categoryId  String
-  category    Category                 @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  questions   QuizzQustionAndOptions[]
+  id                   String                   @id @default(cuid())
+  title                String
+  description          String
+  thumbnail            String?
+  userId               String?
+  user                 User?                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  categoryId           String
+  category             Category                 @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  questions            QuizzQustionAndOptions[]
+  recentlyStartedQuizz RecentlyStartedQuizz[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -119,4 +115,17 @@ model QuizzQustionAndOptions {
 
   @@id([id, quizzId])
   @@map("quizzQuestionAndOptions")
+}
+
+model RecentlyStartedQuizz {
+  id      String @id @default(cuid())
+  userId  String
+  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  quizzId String
+  quizz   Quizz  @relation(fields: [quizzId], references: [id], onDelete: Cascade)
+
+  startedAt DateTime @default(now())
+
+  @@unique([quizzId, userId])
+  @@map("recentlyStartedQuizz")
 }

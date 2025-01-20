@@ -3,7 +3,6 @@
 import { getAuthSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { onboardingFormFinalStepSchema } from "@/lib/zod-schemas/onboardingFormFinalStepSchema";
-import { UserInteresting } from "@prisma/client";
 
 interface onboardingType {
   name: string;
@@ -45,12 +44,13 @@ export const onboarding = async (formData: onboardingType) => {
         },
       });
 
-      await tx.userInterest.createMany({
-        data: interest.map((i) => ({
-          interest: i as UserInteresting,
+      await tx.userInterest.create({
+        data: {
           userId: session.user.id,
-        })),
-      });
+          interest
+        }
+      })
+
     });
 
     return {
